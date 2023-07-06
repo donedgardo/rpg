@@ -6,12 +6,14 @@ use input::input;
 use camera::CameraPlugin;
 use network::{GgrsConfig};
 use network::NetworkPlugin;
+use menu::MenuPlugin;
 
 mod arena;
 mod player;
 mod camera;
 mod input;
 mod network;
+mod menu;
 
 fn main() {
     let mut app = App::new();
@@ -19,6 +21,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugin(CameraPlugin)
         .add_plugin(NetworkPlugin)
+        .add_plugin(MenuPlugin)
         .run();
 }
 
