@@ -13,18 +13,17 @@ impl Plugin for MenuPlugin {
 fn setup_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
     // Load the button materials
     let button_materials = asset_server.load("assets/button_materials.png");
-
     // Create the buttons
     commands.spawn_bundle(ButtonBundle {
-        material: button_materials.clone(),
+        background_color: BackgroundColor::from(Color::AZURE),
         ..Default::default()
     }).with(LocalGameButton);
     commands.spawn_bundle(ButtonBundle {
-        material: button_materials.clone(),
+        background_color: BackgroundColor::from(Color::AZURE),
         ..Default::default()
     }).with(OneVOneGameButton);
     commands.spawn_bundle(ButtonBundle {
-        material: button_materials.clone(),
+        background_color: BackgroundColor::from(Color::AZURE),
         ..Default::default()
     }).with(TwoVTwoGameButton);
 }
