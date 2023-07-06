@@ -4,7 +4,8 @@ use bevy_ggrs::GGRSPlugin;
 use bevy_matchbox::prelude::*;
 use input::input;
 use camera::CameraPlugin;
-use network::{GgrsConfig, start_socket, wait_for_players};
+use network::{GgrsConfig};
+use network::NetworkPlugin;
 
 mod arena;
 mod player;
