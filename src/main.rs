@@ -13,7 +13,6 @@ mod camera;
 mod input;
 mod network;
 
-const FPS: usize = 60;
 fn main() {
     let mut app = App::new();
     app
