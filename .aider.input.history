@@ -13,3 +13,6 @@
 
 # 2023-07-06 16:22:58.444896
 +/add src/
+
+# 2023-07-06 16:23:30.758077
++can you refactor move the input functionality into its own lib
