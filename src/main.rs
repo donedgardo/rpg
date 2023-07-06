@@ -16,7 +16,6 @@ mod network;
 const FPS: usize = 60;
 fn main() {
     let mut app = App::new();
-    network::integrate_ggrs_plugin(&mut app);
     app
         .add_plugins(DefaultPlugins)
         .add_plugin(CameraPlugin)
@@ -27,5 +26,4 @@ fn main() {
 
 // Time Energy
 pub struct Ether(f64);
-
 // Magnetic field

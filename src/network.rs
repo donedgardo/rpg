@@ -4,9 +4,12 @@ use bevy_ggrs::GGRSPlugin;
 use bevy_matchbox::prelude::*;
 use crate::input::input;
 
+const FPS: usize = 60;
+
 pub struct NetworkPlugin;
 impl Plugin for NetworkPlugin {
     fn build(&self, app: &mut App) {
+        integrate_ggrs_plugin(app);
         app
             .add_startup_system(start_socket)
             .add_system(wait_for_players);
