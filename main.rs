@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::app::AppExit;
+use bevy::ecs::schedule::SystemStage;
 
 fn main() {
     App::build()
