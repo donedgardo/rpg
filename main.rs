@@ -5,6 +5,7 @@ use bevy_matchbox::prelude::*;
 
 mod arena;
 mod player;
+mod main_menu;
 
 struct GgrsConfig;
 
@@ -101,6 +102,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_startup_system(start_socket)
         .add_system(wait_for_players)
+        .add_plugin(main_menu::MainMenuPlugin) // Add the MainMenuPlugin
         .run();
 }
 
