@@ -5,6 +5,9 @@ use bevy_matchbox::prelude::*;
 
 mod arena;
 mod player;
+mod camera;
+
+use camera::CameraPlugin;
 
 struct GgrsConfig;
 
