@@ -16,12 +16,7 @@ mod network;
 const FPS: usize = 60;
 fn main() {
     let mut app = App::new();
-    GGRSPlugin::<GgrsConfig>::new()
-        // define frequency of rollback game logic update
-        .with_update_frequency(FPS)
-        // define system that returns inputs given a player handle, so GGRS can send the inputs around
-        .with_input_system(input)
-        .build(&mut app);
+    network::integrate_ggrs_plugin(&mut app);
     app
         .add_plugins(DefaultPlugins)
         .add_plugin(CameraPlugin)
