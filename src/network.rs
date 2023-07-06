@@ -25,10 +25,10 @@ impl Config for GgrsConfig {
     type Address = PeerId;
 }
 
-pub fn start_socket(mut commands: Commands) {
-    let room_url = "ws://127.0.0.1:3536/arena?next=2";
+pub fn start_socket(mut commands: Commands, player_config: Res<PlayerConfig>) {
+    let room_url = format!("ws://127.0.0.1:3536/arena?next={}", player_config.num_players);
     info!("connecting to server: {:?}", room_url);
-    commands.insert_resource(MatchboxSocket::new_ggrs(room_url));
+    commands.insert_resource(MatchboxSocket::new_ggrs(&room_url));
 }
 
 pub fn wait_for_players(
@@ -77,4 +77,7 @@ pub fn integrate_ggrs_plugin(app: &mut App) {
         // define system that returns inputs given a player handle, so GGRS can send the inputs around
         .with_input_system(input)
         .build(app);
+}
+pub struct PlayerConfig {
+    pub num_players: usize,
 }
