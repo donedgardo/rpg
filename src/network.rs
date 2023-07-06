@@ -39,7 +39,8 @@ pub fn start_socket(mut commands: Commands, player_config: Res<PlayerConfig>) {
 
 pub fn wait_for_players(
     mut commands: Commands,
-    mut socket: ResMut<MatchboxSocket<SingleChannel>>
+    mut socket: ResMut<MatchboxSocket<SingleChannel>>,
+    player_config: Res<PlayerConfig>
 ) {
     if socket.get_channel(0).is_err() {
         return;
@@ -47,15 +48,14 @@ pub fn wait_for_players(
     socket.update_peers();
     let players = socket.players();
 
-    let num_players = 2;
-    if players.len() < num_players {
+    if players.len() < player_config.num_players {
         return; // wait for more players
     }
 
     info!("All peers have joined, going in-game");
 
     let mut session_builder = SessionBuilder::<GgrsConfig>::new()
-        .with_num_players(num_players)
+        .with_num_players(player_config.num_players)
         .with_input_delay(2);
 
     for (i, player) in players.into_iter().enumerate() {
