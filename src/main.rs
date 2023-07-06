@@ -1,11 +1,13 @@
 use bevy::prelude::*;
-use bevy_ggrs::ggrs::{Config, SessionBuilder, PlayerHandle};
+use bevy_ggrs::ggrs::{Config, SessionBuilder};
 use bevy_ggrs::GGRSPlugin;
 use bevy_matchbox::prelude::*;
+use crate::input::input;
 
 mod arena;
 mod player;
 mod camera;
+mod input;
 
 use camera::CameraPlugin;
 
@@ -13,7 +15,6 @@ struct GgrsConfig;
 
 const FPS: usize = 60;
 
-use crate::input::input;
 
 impl Config for GgrsConfig {
     // 4-directions + fire fits easily in a single byte
