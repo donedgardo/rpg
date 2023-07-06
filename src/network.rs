@@ -12,7 +12,8 @@ impl Plugin for NetworkPlugin {
         integrate_ggrs_plugin(app);
         app
             .add_startup_system(start_socket)
-            .add_system(wait_for_players);
+            .add_system(wait_for_players)
+            .insert_resource(PlayerConfig { num_players: 2});
     }
 }
 
