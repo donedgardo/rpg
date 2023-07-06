@@ -24,8 +24,7 @@ fn main() {
     app
         .add_plugins(DefaultPlugins)
         .add_plugin(CameraPlugin)
-        .add_startup_system(start_socket)
-        .add_system(wait_for_players)
+        .add_plugin(NetworkPlugin)
         .run();
 }
 
