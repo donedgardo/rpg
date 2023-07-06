@@ -25,6 +25,11 @@ impl Config for GgrsConfig {
     type Address = PeerId;
 }
 
+#[derive(Resource)]
+pub struct PlayerConfig {
+    pub num_players: usize,
+}
+
 pub fn start_socket(mut commands: Commands, player_config: Res<PlayerConfig>) {
     let room_url = format!("ws://127.0.0.1:3536/arena?next={}", player_config.num_players);
     info!("connecting to server: {:?}", room_url);
@@ -78,6 +83,4 @@ pub fn integrate_ggrs_plugin(app: &mut App) {
         .with_input_system(input)
         .build(app);
 }
-pub struct PlayerConfig {
-    pub num_players: usize,
-}
+
