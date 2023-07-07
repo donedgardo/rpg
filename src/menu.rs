@@ -10,7 +10,7 @@ impl Plugin for MenuPlugin {
     }
 }
 
-fn create_button(materials: Handle<ColorMaterial>) -> ButtonBundle {
+fn create_button(materials: Handle<Image>) -> ButtonBundle {
     ButtonBundle {
         image: UiImage{
             texture: materials,
@@ -43,9 +43,8 @@ fn setup_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
         background_color: BackgroundColor::from(Color::rgb(0.26, 0.26, 0.32)),
         ..Default::default()
     }).with_children(|parent| {
-        parent.spawn((create_button(button_materials.clone()), LocalGameButton));
-        parent.spawn((create_button(button_materials.clone()), OneVOneGameButton));
-        parent.spawn((create_button(button_materials), TwoVTwoGameButton));
+        parent.spawn((create_button(button_materials.clone()), LocalPlayButton));
+        parent.spawn((create_button(button_materials), OnlinePlayButton));
     });
 }
 fn button_system(
@@ -68,10 +67,8 @@ fn button_system(
 }
 
 #[derive(Component)]
-struct LocalGameButton;
+struct LocalPlayButton;
 
 #[derive(Component)]
-struct OneVOneGameButton;
+struct OnlinePlayButton;
 
-#[derive(Component)]
-struct TwoVTwoGameButton;
