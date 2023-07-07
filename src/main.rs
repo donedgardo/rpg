@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy::app::AppExit;
 use bevy_ggrs::ggrs::{Config, SessionBuilder};
 use bevy_ggrs::GGRSPlugin;
 use bevy_matchbox::prelude::*;
@@ -15,6 +16,12 @@ mod input;
 mod network;
 mod menu;
 
+#[derive(Clone, Eq, PartialEq, Debug, Hash)]
+pub enum AppState {
+    Menu,
+    Online,
+}
+
 fn main() {
     let mut app = App::new();
     app
@@ -22,6 +29,8 @@ fn main() {
         .add_plugin(CameraPlugin)
         .add_plugin(NetworkPlugin)
         .add_plugin(MenuPlugin)
+        .add_state(AppState::Menu)
+        .add_system_set(SystemSet::on_enter(AppState::Online).with_system(network::start_socket.system()))
         .run();
 }
 

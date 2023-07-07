@@ -70,12 +70,15 @@ fn button_system(
         (&Interaction, &mut Handle<ColorMaterial>, &Children),
         (Changed<Interaction>, With<Button>),
     >,
+    mut app_state: ResMut<State<AppState>>,
 ) {
     // Handle button interactions
     for (interaction, mut material, children) in interaction_query.iter_mut() {
         match *interaction {
             Interaction::Clicked => {
-                // Handle button click
+                if let Ok(_) = children.get_component::<OnlinePlayButton>() {
+                    app_state.set(AppState::Online).unwrap();
+                }
             }
             _ => {}
         }
