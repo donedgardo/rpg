@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use crate::app_state::AppState;
 
 pub struct MenuPlugin;
 
@@ -67,16 +68,16 @@ fn button_system(
     mut commands: Commands,
     button_materials: Res<Assets<ColorMaterial>>,
     mut interaction_query: Query<
-        (&Interaction, &mut Handle<ColorMaterial>, &Children),
+        (&Interaction, &mut Handle<ColorMaterial>, Entity),
         (Changed<Interaction>, With<Button>),
     >,
     mut app_state: ResMut<State<AppState>>,
 ) {
     // Handle button interactions
-    for (interaction, mut material, children) in interaction_query.iter_mut() {
+    for (interaction, mut material, entity) in interaction_query.iter_mut() {
         match *interaction {
             Interaction::Clicked => {
-                if let Ok(_) = children.get_component::<OnlinePlayButton>() {
+                if let Ok(_) = entity.get_component::<OnlinePlayButton>() {
                     app_state.set(AppState::Online).unwrap();
                 }
             }
