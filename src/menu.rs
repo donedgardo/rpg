@@ -79,7 +79,7 @@ fn button_system(
             Interaction::Clicked => {
                 match button {
                     MenuButtons::OnlinePlay => {
-                        app_state.set(AppState::Online);
+                        app_state.set(AppState::WaitingForPlayers);
                     }
                     _ => {}
                 }
