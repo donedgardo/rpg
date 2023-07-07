@@ -21,11 +21,11 @@ mod app_state;
 fn main() {
     let mut app = App::new();
     app
+        .add_state::<AppState>()
         .add_plugins(DefaultPlugins)
         .add_plugin(CameraPlugin)
         .add_plugin(NetworkPlugin)
         .add_plugin(MenuPlugin)
-        .add_state::<AppState>()
         .run();
 }
 
