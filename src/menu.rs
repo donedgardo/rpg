@@ -9,13 +9,15 @@ impl Plugin for MenuPlugin {
         app
             .add_system(setup_menu.in_schedule(OnEnter(AppState::Menu)))
             .add_system(button_system.in_set(OnUpdate(AppState::Menu)))
-            .add_system(cleanup_system::<MenuButtons>.in_schedule(OnExit(AppState::Menu)));
+            .add_system(cleanup_system::<MenuButtons>.in_schedule(OnExit(AppState::Menu)))
+            .add_system(show_waiting_text.in_schedule(OnEnter(AppState::WaitingForPlayers)))
+            .add_system(cleanup_system::<WaitingPlayersText>.in_schedule(OnExit(AppState::WaitingForPlayers)));
     }
 }
 
 fn create_button(materials: Handle<Image>) -> ButtonBundle {
     ButtonBundle {
-        image: UiImage{
+        image: UiImage {
             texture: materials,
             flip_x: false,
             flip_y: false,
@@ -36,7 +38,7 @@ fn setup_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
     let font = asset_server.load("Roboto/Roboto-Regular.ttf");
 
     // Create a node to contain the buttons
-    commands.spawn(NodeBundle {
+    commands.spawn((NodeBundle {
         style: Style {
             size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
             align_items: AlignItems::Center,
@@ -47,7 +49,7 @@ fn setup_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
         },
         background_color: BackgroundColor::from(Color::rgb(0.26, 0.26, 0.32)),
         ..Default::default()
-    }).with_children(|parent| {
+    }, MenuButtons::Background)).with_children(|parent| {
         parent.spawn((create_button(button_materials.clone()), MenuButtons::LocalPlay))
             .with_children(|parent| {
                 parent.spawn(TextBundle::from_section("New Game", TextStyle {
@@ -55,7 +57,7 @@ fn setup_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
                     font_size: 32.,
                     color: Default::default(),
                 }));
-        });
+            });
         parent.spawn((create_button(button_materials), MenuButtons::OnlinePlay))
             .with_children(|parent| {
                 parent.spawn(TextBundle::from_section("Online Game", TextStyle {
@@ -66,6 +68,7 @@ fn setup_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
             });
     });
 }
+
 fn button_system(
     mut interaction_query: Query<
         (&Interaction, &MenuButtons),
@@ -91,6 +94,22 @@ fn button_system(
 
 #[derive(Component)]
 enum MenuButtons {
+    Background,
     LocalPlay,
-    OnlinePlay
+    OnlinePlay,
+}
+
+#[derive(Component)]
+struct WaitingPlayersText;
+
+pub fn show_waiting_text(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let font = asset_server.load("Roboto/Roboto-Regular.ttf");
+    commands.spawn((TextBundle::from_section(
+        "Waiting for players...",
+        TextStyle {
+            font,
+            font_size: 50.0,
+            color: Color::WHITE,
+        },
+    ), WaitingPlayersText));
 }

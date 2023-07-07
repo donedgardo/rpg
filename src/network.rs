@@ -12,8 +12,8 @@ impl Plugin for NetworkPlugin {
     fn build(&self, app: &mut App) {
         integrate_ggrs_plugin(app);
         app
-            .add_system(start_socket.in_schedule(OnEnter(AppState::Online)))
-            .add_system(wait_for_players.in_set(OnUpdate(AppState::Online)))
+            .add_system(start_socket.in_schedule(OnEnter(AppState::WaitingForPlayers)))
+            .add_system(wait_for_players.in_set(OnUpdate(AppState::WaitingForPlayers)))
             .insert_resource(PlayerConfig { num_players: 2});
     }
 }
@@ -41,7 +41,8 @@ pub fn start_socket(mut commands: Commands, player_config: Res<PlayerConfig>) {
 pub fn wait_for_players(
     mut commands: Commands,
     mut socket: ResMut<MatchboxSocket<SingleChannel>>,
-    player_config: Res<PlayerConfig>
+    player_config: Res<PlayerConfig>,
+    mut app_state: ResMut<NextState<AppState>>,
 ) {
     if socket.get_channel(0).is_err() {
         return;
@@ -52,9 +53,7 @@ pub fn wait_for_players(
     if players.len() < player_config.num_players {
         return; // wait for more players
     }
-
     info!("All peers have joined, going in-game");
-
     let mut session_builder = SessionBuilder::<GgrsConfig>::new()
         .with_num_players(player_config.num_players)
         .with_input_delay(2);
@@ -74,6 +73,7 @@ pub fn wait_for_players(
         .expect("failed to start session");
 
     commands.insert_resource(bevy_ggrs::Session::P2PSession(ggrs_session));
+    app_state.set(AppState::Online);
 }
 
 

@@ -1,9 +1,9 @@
 use bevy::prelude::States;
 
-#[derive(Clone, Eq, PartialEq, Debug, Hash)]
+#[derive(States, Clone, Eq, PartialEq, Debug, Hash, Default)]
 pub enum AppState {
+    #[default]
     Menu,
-    Online,
     WaitingForPlayers,
-}
+    Online,
 }
