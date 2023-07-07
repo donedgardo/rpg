@@ -17,6 +17,7 @@ mod input;
 mod network;
 mod menu;
 mod app_state;
+mod cleanup_ui;
 
 fn main() {
     let mut app = App::new();
@@ -28,7 +29,6 @@ fn main() {
         .add_plugin(MenuPlugin)
         .run();
 }
-
 
 // Time Energy
 pub struct Ether(f64);
