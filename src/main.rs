@@ -26,7 +26,6 @@ fn main() {
         .add_plugin(NetworkPlugin)
         .add_plugin(MenuPlugin)
         .add_state::<AppState>()
-        .add_system_set(SystemSet::on_enter(AppState::Online).with_system(network::start_socket.system()))
         .run();
 }
 

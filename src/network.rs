@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use bevy_ggrs::ggrs::{Config, SessionBuilder};
 use bevy_ggrs::GGRSPlugin;
 use bevy_matchbox::prelude::*;
+use crate::app_state::AppState;
 use crate::input::input;
 
 const FPS: usize = 60;
@@ -11,8 +12,8 @@ impl Plugin for NetworkPlugin {
     fn build(&self, app: &mut App) {
         integrate_ggrs_plugin(app);
         app
-            .add_startup_system(start_socket)
-            .add_system(wait_for_players)
+            .add_system(start_socket.in_schedule(OnEnter(AppState::Online)))
+            .add_system(wait_for_players.in_set(OnUpdate(AppState::Online)))
             .insert_resource(PlayerConfig { num_players: 2});
     }
 }

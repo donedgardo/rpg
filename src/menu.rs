@@ -46,7 +46,7 @@ fn setup_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
         background_color: BackgroundColor::from(Color::rgb(0.26, 0.26, 0.32)),
         ..Default::default()
     }).with_children(|parent| {
-        parent.spawn((create_button(button_materials.clone()), LocalPlayButton))
+        parent.spawn((create_button(button_materials.clone()), MenuButtons::LocalPlay))
             .with_children(|parent| {
                 parent.spawn(TextBundle::from_section("New Game", TextStyle {
                     font: font.clone(),
@@ -54,7 +54,7 @@ fn setup_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
                     color: Default::default(),
                 }));
         });
-        parent.spawn((create_button(button_materials), OnlinePlayButton))
+        parent.spawn((create_button(button_materials), MenuButtons::OnlinePlay))
             .with_children(|parent| {
                 parent.spawn(TextBundle::from_section("Online Game", TextStyle {
                     font,
@@ -65,21 +65,21 @@ fn setup_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
     });
 }
 fn button_system(
-    mut commands: Commands,
-    button_materials: Res<Assets<ColorMaterial>>,
     mut interaction_query: Query<
-        (&Interaction, &mut Handle<ColorMaterial>, Entity),
+        (&Interaction, &MenuButtons),
         (Changed<Interaction>, With<Button>),
     >,
-    mut app_state: ResMut<State<AppState>>,
-    world: Res<World>,
+    mut app_state: ResMut<NextState<AppState>>,
 ) {
     // Handle button interactions
-    for (interaction, mut material, entity) in interaction_query.iter_mut() {
+    for (interaction, button) in interaction_query.iter_mut() {
         match *interaction {
             Interaction::Clicked => {
-                if world.get::<OnlinePlayButton>(entity).is_some() {
-                    app_state.set(AppState::Online).unwrap();
+                match button {
+                    MenuButtons::OnlinePlay => {
+                        app_state.set(AppState::Online);
+                    }
+                    _ => {}
                 }
             }
             _ => {}
@@ -88,8 +88,7 @@ fn button_system(
 }
 
 #[derive(Component)]
-struct LocalPlayButton;
-
-#[derive(Component)]
-struct OnlinePlayButton;
-
+enum MenuButtons {
+    LocalPlay,
+    OnlinePlay
+}
