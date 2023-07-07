@@ -10,6 +10,23 @@ impl Plugin for MenuPlugin {
     }
 }
 
+fn create_button(materials: Handle<ColorMaterial>) -> ButtonBundle {
+    ButtonBundle {
+        image: UiImage{
+            texture: materials,
+            flip_x: false,
+            flip_y: false,
+        },
+        style: Style {
+            size: Size::new(Val::Px(279.), Val::Px(76.)),
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            ..Default::default()
+        },
+        ..Default::default()
+    }
+}
+
 fn setup_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
     // Load the button materials
     let button_materials = asset_server.load("button_materials.png");
@@ -26,52 +43,11 @@ fn setup_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
         background_color: BackgroundColor::from(Color::rgb(0.26, 0.26, 0.32)),
         ..Default::default()
     }).with_children(|parent| {
-        parent.spawn((ButtonBundle {
-            image: UiImage{
-                texture: button_materials.clone(),
-                flip_x: false,
-                flip_y: false,
-            },
-            style: Style {
-                size: Size::new(Val::Px(279.), Val::Px(76.)),
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
-                ..default()
-            },
-            ..Default::default()
-        }, LocalGameButton));
-        parent.spawn((ButtonBundle {
-            image: UiImage{
-                texture: button_materials.clone(),
-                flip_x: false,
-                flip_y: false,
-            },
-            style: Style {
-                size: Size::new(Val::Px(279.), Val::Px(76.)),
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
-                ..default()
-            },
-            ..Default::default()
-        }, OneVOneGameButton));
-        parent.spawn((ButtonBundle {
-            image: UiImage{
-                texture: button_materials,
-                flip_x: false,
-                flip_y: false,
-            },
-            style: Style {
-                size: Size::new(Val::Px(279.), Val::Px(76.)),
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
-                ..default()
-            },
-            ..Default::default()
-        }, TwoVTwoGameButton));
+        parent.spawn((create_button(button_materials.clone()), LocalGameButton));
+        parent.spawn((create_button(button_materials.clone()), OneVOneGameButton));
+        parent.spawn((create_button(button_materials), TwoVTwoGameButton));
     });
-
 }
-
 fn button_system(
     mut commands: Commands,
     button_materials: Res<Assets<ColorMaterial>>,
