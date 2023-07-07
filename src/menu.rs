@@ -72,12 +72,13 @@ fn button_system(
         (Changed<Interaction>, With<Button>),
     >,
     mut app_state: ResMut<State<AppState>>,
+    world: Res<World>,
 ) {
     // Handle button interactions
     for (interaction, mut material, entity) in interaction_query.iter_mut() {
         match *interaction {
             Interaction::Clicked => {
-                if let Ok(_) = entity.get_component::<OnlinePlayButton>() {
+                if world.get::<OnlinePlayButton>(entity).is_some() {
                     app_state.set(AppState::Online).unwrap();
                 }
             }
