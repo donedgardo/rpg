@@ -3,29 +3,42 @@ use bevy::prelude::*;
 pub struct MenuPlugin;
 
 impl Plugin for MenuPlugin {
-    fn build(&self, app: &mut AppBuilder) {
+    fn build(&self, app: &mut App) {
         app
-            .add_startup_system(setup_menu.system())
-            .add_system(button_system.system());
+            .add_startup_system(setup_menu)
+            .add_system(button_system);
     }
 }
 
 fn setup_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
     // Load the button materials
     let button_materials = asset_server.load("assets/button_materials.png");
+
     // Create the buttons
-    commands.spawn_bundle(ButtonBundle {
-        background_color: BackgroundColor::from(Color::AZURE),
+    commands.spawn((ButtonBundle {
+        image: UiImage{
+            texture: button_materials.clone(),
+            flip_x: false,
+            flip_y: false,
+        },
         ..Default::default()
-    }).with(LocalGameButton);
-    commands.spawn_bundle(ButtonBundle {
-        background_color: BackgroundColor::from(Color::AZURE),
+    }, LocalGameButton));
+    commands.spawn((ButtonBundle {
+        image: UiImage{
+            texture: button_materials.clone(),
+            flip_x: false,
+            flip_y: false,
+        },
         ..Default::default()
-    }).with(OneVOneGameButton);
-    commands.spawn_bundle(ButtonBundle {
-        background_color: BackgroundColor::from(Color::AZURE),
+    }, OneVOneGameButton));
+    commands.spawn((ButtonBundle {
+        image: UiImage{
+            texture: button_materials,
+            flip_x: false,
+            flip_y: false,
+        },
         ..Default::default()
-    }).with(TwoVTwoGameButton);
+    }, TwoVTwoGameButton));
 }
 
 fn button_system(
@@ -33,7 +46,7 @@ fn button_system(
     button_materials: Res<Assets<ColorMaterial>>,
     mut interaction_query: Query<
         (&Interaction, &mut Handle<ColorMaterial>, &Children),
-        (Mutated<Interaction>, With<Button>),
+        (Changed<Interaction>, With<Button>),
     >,
 ) {
     // Handle button interactions
@@ -47,6 +60,11 @@ fn button_system(
     }
 }
 
+#[derive(Component)]
 struct LocalGameButton;
+
+#[derive(Component)]
 struct OneVOneGameButton;
+
+#[derive(Component)]
 struct TwoVTwoGameButton;
