@@ -30,6 +30,7 @@ fn create_button(materials: Handle<Image>) -> ButtonBundle {
 fn setup_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
     // Load the button materials
     let button_materials = asset_server.load("button_materials.png");
+    let font = asset_server.load("Roboto/Roboto-Regular.ttf");
 
     // Create a node to contain the buttons
     commands.spawn(NodeBundle {
@@ -38,13 +39,28 @@ fn setup_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
             align_items: AlignItems::Center,
             justify_content: JustifyContent::Center,
             flex_direction: FlexDirection::Column,
+            gap: Size::new(Val::Px(32.), Val::Px(32.)),
             ..Default::default()
         },
         background_color: BackgroundColor::from(Color::rgb(0.26, 0.26, 0.32)),
         ..Default::default()
     }).with_children(|parent| {
-        parent.spawn((create_button(button_materials.clone()), LocalPlayButton));
-        parent.spawn((create_button(button_materials), OnlinePlayButton));
+        parent.spawn((create_button(button_materials.clone()), LocalPlayButton))
+            .with_children(|parent| {
+                parent.spawn(TextBundle::from_section("New Game", TextStyle {
+                    font: font.clone(),
+                    font_size: 32.,
+                    color: Default::default(),
+                }));
+        });
+        parent.spawn((create_button(button_materials), OnlinePlayButton))
+            .with_children(|parent| {
+                parent.spawn(TextBundle::from_section("Online Game", TextStyle {
+                    font,
+                    font_size: 32.,
+                    color: Default::default(),
+                }));
+            });
     });
 }
 fn button_system(
