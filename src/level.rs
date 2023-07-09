@@ -3,8 +3,9 @@ use bevy::asset::Assets;
 use bevy::pbr::{PbrBundle, PointLight, PointLightBundle, StandardMaterial};
 use crate::app_state::AppState;
 use crate::player::Player;
-use bevy_ggrs::ggrs::PlayerHandle;
+use bevy_ggrs::ggrs::{ PlayerHandle};
 use bevy_ggrs::Session;
+use crate::network::GgrsConfig;
 
 pub struct LevelPlugin;
 
@@ -19,10 +20,10 @@ fn spawn_players(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    session: Res<Session>,
+    session: Res<Session<GgrsConfig>>,
 ) {
     for handle in session.player_handles() {
-        commands.spawn(PbrBundle {
+        let _ = commands.spawn(PbrBundle {
             mesh: meshes.add(Mesh::from(shape::Icosphere { radius: 0.5, subdivisions: 4 })),
             material: materials.add(Color::rgb(0.8, 0.7, 0.6).into()),
             transform: Transform::from_xyz(0.0, 0.5, 0.0),

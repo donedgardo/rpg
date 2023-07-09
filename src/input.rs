@@ -8,9 +8,9 @@ pub const INPUT_SPECIAL: u8 = 1 << 3;
 pub const INPUT_MOVE_X: u8 = 1 << 4;
 pub const INPUT_MOVE_Y: u8 = 1 << 5;
 pub const INPUT_MOVE_Z: u8 = 1 << 6;
-pub fn input(_: In<PlayerHandle>, gamepad: Res<Input<Gamepad>>) -> u8 {
+pub fn input(_: In<PlayerHandle>, gamepad: Res<Input<GamepadButton>>) -> u8 {
     let mut input = 0u8;
-    if gamepad.just_pressed(GamepadButton::South) {
+    if gamepad.just_pressed(GamepadButtonType::South) {
         input |= INPUT_JUMP;
     }
     if gamepad.just_pressed(GamepadButton::East) {
