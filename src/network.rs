@@ -4,6 +4,7 @@ use bevy_ggrs::GGRSPlugin;
 use bevy_matchbox::prelude::*;
 use crate::app_state::AppState;
 use crate::input::input;
+use crate::player::Velocity;
 
 const FPS: usize = 60;
 
@@ -83,6 +84,8 @@ pub fn integrate_ggrs_plugin(app: &mut App) {
         .with_update_frequency(FPS)
         // define system that returns inputs given a player handle, so GGRS can send the inputs around
         .with_input_system(input)
+        .register_rollback_component::<Transform>()
+        .register_rollback_component::<Velocity>()
         .build(app);
 }
 
