@@ -5,27 +5,31 @@ pub const INPUT_JUMP: u8 = 1 << 0;
 pub const INPUT_ATTACK: u8 = 1 << 1;
 pub const INPUT_BLOCK: u8 = 1 << 2;
 pub const INPUT_SPECIAL: u8 = 1 << 3;
-pub const INPUT_LEFT: u8 = 1 << 4;
-pub const INPUT_RIGHT: u8 = 1 << 5;
-pub fn input(_: In<PlayerHandle>, keys: Res<Input<KeyCode>>) -> u8 {
+pub const INPUT_MOVE_X: u8 = 1 << 4;
+pub const INPUT_MOVE_Y: u8 = 1 << 5;
+pub const INPUT_MOVE_Z: u8 = 1 << 6;
+pub fn input(_: In<PlayerHandle>, gamepad: Res<Input<Gamepad>>) -> u8 {
     let mut input = 0u8;
-    if keys.just_pressed(KeyCode::A) {
+    if gamepad.just_pressed(GamepadButton::South) {
         input |= INPUT_JUMP;
     }
-    if keys.just_pressed(KeyCode::B) {
+    if gamepad.just_pressed(GamepadButton::East) {
         input |= INPUT_ATTACK;
     }
-    if keys.just_pressed(KeyCode::X) {
+    if gamepad.just_pressed(GamepadButton::West) {
         input |= INPUT_BLOCK;
     }
-    if keys.just_pressed(KeyCode::Y) {
+    if gamepad.just_pressed(GamepadButton::North) {
         input |= INPUT_SPECIAL;
     }
-    if keys.pressed(KeyCode::Left) {
-        input |= INPUT_LEFT;
+    if gamepad.axis_value(GamepadAxis::LeftStickX).unwrap_or(0.0) > 0.0 {
+        input |= INPUT_MOVE_X;
     }
-    if keys.pressed(KeyCode::Right) {
-        input |= INPUT_RIGHT;
+    if gamepad.axis_value(GamepadAxis::LeftStickY).unwrap_or(0.0) > 0.0 {
+        input |= INPUT_MOVE_Y;
+    }
+    if gamepad.axis_value(GamepadAxis::RightStickY).unwrap_or(0.0) > 0.0 {
+        input |= INPUT_MOVE_Z;
     }
     input
 }
