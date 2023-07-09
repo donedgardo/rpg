@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy::asset::Assets;
 use bevy::pbr::{PbrBundle, PointLight, PointLightBundle, StandardMaterial};
 use crate::app_state::AppState;
-use crate::player::Player;
+use crate::player::{Player, PlayerMovement};
 use bevy_ggrs::ggrs::{PlayerHandle};
 use bevy_ggrs::Session;
 use crate::network::GgrsConfig;
@@ -12,7 +12,17 @@ pub struct LevelPlugin;
 impl Plugin for LevelPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(setup_scene.in_schedule(OnEnter(AppState::Online)))
-            .add_system(spawn_players.in_schedule(OnEnter(AppState::Online)));
+            .add_system(spawn_players.in_schedule(OnEnter(AppState::Online)))
+            .add_system(move_player_system.in_schedule(OnUpdate(AppState::Online)));
+    }
+}
+
+fn move_player_system(
+    time: Res<Time>,
+    mut query: Query<(&PlayerMovement, &mut Transform)>,
+) {
+    for (movement, mut transform) in query.iter_mut() {
+        transform.translation += movement.velocity * time.delta_seconds();
     }
 }
 
