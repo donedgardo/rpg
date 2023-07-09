@@ -5,3 +5,9 @@ impl Player {
         Self
     }
 }
+use bevy::prelude::*;
+use bevy_ggrs::ggrs::PlayerHandle;
+
+pub struct Player {
+    pub handle: PlayerHandle,
+}
