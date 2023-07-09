@@ -3,11 +3,12 @@ use bevy_ggrs::ggrs::PlayerHandle;
 
 pub const INPUT_JUMP: u8 = 1 << 0;
 pub const INPUT_ATTACK: u8 = 1 << 1;
+pub const INPUT_JUMP: u8 = 1 << 0;
+pub const INPUT_ATTACK: u8 = 1 << 1;
 pub const INPUT_BLOCK: u8 = 1 << 2;
 pub const INPUT_SPECIAL: u8 = 1 << 3;
 pub const INPUT_LEFT: u8 = 1 << 4;
 pub const INPUT_RIGHT: u8 = 1 << 5;
-
 pub fn input(_: In<PlayerHandle>, keys: Res<Input<KeyCode>>) -> u8 {
     let mut input = 0u8;
     if keys.just_pressed(KeyCode::A) {
