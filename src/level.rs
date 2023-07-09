@@ -3,7 +3,7 @@ use bevy::asset::Assets;
 use bevy::pbr::{PbrBundle, PointLight, PointLightBundle, StandardMaterial};
 use crate::app_state::AppState;
 use crate::player::Player;
-use bevy_ggrs::ggrs::{ PlayerHandle};
+use bevy_ggrs::ggrs::{PlayerHandle};
 use bevy_ggrs::Session;
 use crate::network::GgrsConfig;
 
@@ -12,7 +12,7 @@ pub struct LevelPlugin;
 impl Plugin for LevelPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(setup_scene.in_schedule(OnEnter(AppState::Online)))
-           .add_system(spawn_players.in_schedule(OnEnter(AppState::Online)));
+            .add_system(spawn_players.in_schedule(OnEnter(AppState::Online)));
     }
 }
 
@@ -22,13 +22,18 @@ fn spawn_players(
     mut materials: ResMut<Assets<StandardMaterial>>,
     session: Res<Session<GgrsConfig>>,
 ) {
-    for handle in session.player_handles() {
-        let _ = commands.spawn(PbrBundle {
-            mesh: meshes.add(Mesh::from(shape::Icosphere { radius: 0.5, subdivisions: 4 })),
+    let num_players = match &*session {
+        Session::SyncTestSession(s) => s.num_players(),
+        Session::P2PSession(s) => s.num_players(),
+        Session::SpectatorSession(s) => s.num_players(),
+    };
+    for handle in 0..num_players {
+        let _ = commands.spawn((PbrBundle {
+            mesh: meshes.add(shape::UVSphere::default().into()),
             material: materials.add(Color::rgb(0.8, 0.7, 0.6).into()),
             transform: Transform::from_xyz(0.0, 0.5, 0.0),
             ..default()
-        }).with(Player { handle });
+        }, Player { handle }));
     }
 }
 
@@ -60,5 +65,4 @@ fn setup_scene(
         transform: Transform::from_xyz(4.0, 8.0, 4.0),
         ..default()
     });
-
 }

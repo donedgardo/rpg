@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy_ggrs::ggrs::PlayerHandle;
 
+#[derive(Component)]
 pub struct Player {
     pub handle: PlayerHandle,
 }
