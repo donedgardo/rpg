@@ -63,17 +63,9 @@ pub fn input(
     };
 
     if let (Some(x), Some(y)) = (axes.get(axis_lx), axes.get(axis_ly)) {
-        // combine X and Y into one vector
-        let left_stick_pos = Vec2::new(x, y);
         // Example: check if the stick is pushed up
-
-        if ComplexField::sqrt(left_stick_pos.dot(left_stick_pos)) > 0.9 {
-            if left_stick_pos.y > 0.5 {
-                input.actions |= INPUT_MOVE_UP
-            } else {
-                input.actions |= INPUT_MOVE_DOWN
-            }
-        }
+        input.axis_ly = x;
+        input.axis_lx = y;
     }
 
     // In a real game, the buttons would be configurable, but here we hardcode them
