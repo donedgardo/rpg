@@ -8,6 +8,7 @@ bevy = { version= "0.10.1" }
 bevy_editor_pls = "0.4.0"
 bevy_ggrs = "0.12.0"
 bevy_matchbox = { version = "0.6.0", features = ["ggrs"] }
+bytemuck = "1.13.1"
 nalgebra = "0.32.2"
 
 # Enable small optimization in debug mode

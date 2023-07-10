@@ -4474,6 +4474,7 @@ dependencies = [
  "bevy_editor_pls",
  "bevy_ggrs",
  "bevy_matchbox",
+ "bytemuck",
  "nalgebra",
 ]
 
