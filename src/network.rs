@@ -68,13 +68,11 @@ pub fn wait_for_players(
             .expect("failed to add player");
     }
 
-    // move the channel out of the socket (required because GGRS takes ownership of it)
-    let channel = socket.take_channel(0).unwrap();
-
     // P2P Session
     // start the GGRS session
     #[cfg(not(feature = "debug"))]
     {
+        let channel = socket.take_channel(0).unwrap();
         let ggrs_session = session_builder
             .start_p2p_session(channel)
             .expect("failed to start session");
