@@ -11,8 +11,8 @@ use crate::network::GgrsConfig;
 
 pub struct LevelPlugin;
 
-const MOVEMENT_SPEED: f32 = 0.005;
-const MAX_SPEED: f32 = 0.05;
+const MOVEMENT_SPEED: f32 = 0.005 * 2.;
+const MAX_SPEED: f32 = 0.05 * 2.;
 
 impl Plugin for LevelPlugin {
     fn build(&self, app: &mut App) {
