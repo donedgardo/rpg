@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy::asset::Assets;
-use bevy::pbr::{PbrBundle, PointLight, PointLightBundle, StandardMaterial};
+use bevy::sprite::SpriteBundle;
+use bevy::render::color::Color;
 use crate::app_state::AppState;
 use crate::player::{Player, Velocity};
 use bevy_ggrs::ggrs::{ PlayerHandle };
@@ -75,16 +76,13 @@ fn setup_scene(
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     // plane
-    commands.spawn(PbrBundle {
-        mesh: meshes.add(shape::Plane::from_size(5.0).into()),
+    commands.spawn(SpriteBundle {
         material: materials.add(Color::rgb(0.3, 0.5, 0.3).into()),
         ..default()
     });
     // cube
-    commands.spawn(PbrBundle {
-        mesh: meshes.add(Mesh::from(shape::Cube { size: 1.0 })),
+    commands.spawn(SpriteBundle {
         material: materials.add(Color::rgb(0.8, 0.7, 0.6).into()),
-        transform: Transform::from_xyz(0.0, 0.5, 0.0),
         ..default()
     });
     // light
