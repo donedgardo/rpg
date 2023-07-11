@@ -42,6 +42,7 @@ pub fn input(
     buttons: Res<Input<GamepadButton>>,
     axes: Res<Axis<GamepadAxis>>,
     my_gamepad: Option<Res<MyGamepad>>,
+    mut gamepad_axes: ResMut<GamepadAxes>,
 ) -> MyGameInput {
     let mut input = MyGameInput::default();
     let gamepad = if let Some(gp) = my_gamepad {
@@ -63,9 +64,12 @@ pub fn input(
     };
 
     if let (Some(x), Some(y)) = (axes.get(axis_lx), axes.get(axis_ly)) {
+        gamepad_axes.lx = x;
+        gamepad_axes.ly = y;
+        gamepad_axes.apply_deadzone();
         // Example: check if the stick is pushed up
-        input.axis_ly = x;
-        input.axis_lx = y;
+        input.axis_ly = gamepad_axes.ly;
+        input.axis_lx = gamepad_axes.lx;
     }
 
     // In a real game, the buttons would be configurable, but here we hardcode them

@@ -7,6 +7,22 @@ const DEADZONE: f32 = 0.2;
 
 pub struct GamepadPlugin;
 
+pub struct GamepadAxes {
+    pub lx: f32,
+    pub ly: f32,
+}
+
+impl GamepadAxes {
+    pub fn apply_deadzone(&mut self) {
+        if self.lx.abs() < DEADZONE {
+            self.lx = 0.0;
+        }
+        if self.ly.abs() < DEADZONE {
+            self.ly = 0.0;
+        }
+    }
+}
+
 impl Plugin for GamepadPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(gamepad_connections);
