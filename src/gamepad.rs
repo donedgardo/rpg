@@ -3,6 +3,8 @@ use bevy::input::gamepad::{GamepadConnection, GamepadConnectionEvent, GamepadEve
 
 const DEADZONE: f32 = 0.2;
 
+const DEADZONE: f32 = 0.2;
+
 pub struct GamepadPlugin;
 
 impl Plugin for GamepadPlugin {
