@@ -1,10 +1,10 @@
 use bevy::prelude::*;
 use bevy::asset::Assets;
-use bevy::sprite::SpriteBundle;
+use bevy::sprite::{MaterialMesh2dBundle, SpriteBundle};
 use bevy::render::color::Color;
 use crate::app_state::AppState;
 use crate::player::{Player, Velocity};
-use bevy_ggrs::ggrs::{ PlayerHandle };
+use bevy_ggrs::ggrs::{PlayerHandle};
 use bevy_ggrs::{RollbackIdProvider, PlayerInputs, Rollback, Session, GGRSSchedule};
 use nalgebra::ComplexField;
 use crate::input::{INPUT_MOVE_DOWN, INPUT_MOVE_UP};
@@ -12,8 +12,8 @@ use crate::network::GgrsConfig;
 
 pub struct LevelPlugin;
 
-const MOVEMENT_SPEED: f32 = 0.005 * 2.;
-const MAX_SPEED: f32 = 0.05 * 2.;
+const MOVEMENT_SPEED: f32 = 1.;
+const MAX_SPEED: f32 = 5.;
 
 impl Plugin for LevelPlugin {
     fn build(&self, app: &mut App) {
@@ -30,8 +30,8 @@ fn move_player_system(
     for (mut vel, mut transform, player) in query.iter_mut() {
         let input = inputs[player.handle].0;
         let mut v = vel.0;
-        v.x += input.axis_lx * MOVEMENT_SPEED;
-        v.z += input.axis_ly * MOVEMENT_SPEED;
+        v.y += input.axis_lx * MOVEMENT_SPEED;
+        v.x += input.axis_ly * MOVEMENT_SPEED;
         let mag = ComplexField::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
         if mag > MAX_SPEED {
             let factor = MAX_SPEED / mag;
@@ -46,7 +46,7 @@ fn move_player_system(
 fn spawn_players(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
     mut rip: ResMut<RollbackIdProvider>,
     session: Res<Session<GgrsConfig>>,
 ) {
@@ -57,10 +57,14 @@ fn spawn_players(
     };
     for handle in 0..num_players {
         commands.spawn((
-            PbrBundle {
-                mesh: meshes.add(shape::UVSphere::default().into()),
-                material: materials.add(Color::rgb(0.8, 0.7, 0.6).into()),
-                transform: Transform::from_xyz(0.0, 0.5, 0.0),
+            MaterialMesh2dBundle {
+                mesh: meshes
+                    .add(shape::Quad::new(Vec2::new(50., 50.)).into())
+                    .into(),
+                material: materials.add(ColorMaterial::from(Color::RED)),
+                transform: Transform::from_translation(
+                    Vec3::new(if handle == 0 { -50. } else { 50. }, 50., 0.)
+                ),
                 ..default()
             },
             Player { handle },
@@ -73,26 +77,15 @@ fn spawn_players(
 fn setup_scene(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    // plane
-    commands.spawn(SpriteBundle {
-        material: materials.add(Color::rgb(0.3, 0.5, 0.3).into()),
-        ..default()
-    });
-    // cube
-    commands.spawn(SpriteBundle {
-        material: materials.add(Color::rgb(0.8, 0.7, 0.6).into()),
-        ..default()
-    });
-    // light
-    commands.spawn(PointLightBundle {
-        point_light: PointLight {
-            intensity: 1500.0,
-            shadows_enabled: true,
-            ..default()
-        },
-        transform: Transform::from_xyz(4.0, 8.0, 4.0),
+    // Quad
+    commands.spawn(MaterialMesh2dBundle {
+        mesh: meshes
+            .add(shape::Quad::new(Vec2::new(600., 200.)).into())
+            .into(),
+        material: materials.add(ColorMaterial::from(Color::GREEN)),
+        transform: Transform::from_translation(Vec3::new(0., -100., 0.)),
         ..default()
     });
 }

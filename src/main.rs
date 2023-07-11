@@ -30,9 +30,6 @@ fn main() {
     app
         .add_state::<AppState>()
         .add_plugins(DefaultPlugins)
-        .remove_plugin::<bevy::render::RenderPlugin>()
-        .add_plugin(bevy::sprite::SpritePlugin)
-        .add_plugin(bevy::pbr::PbrPlugin)
         .add_plugin(EditorPlugin::default())
         .add_plugin(CameraPlugin)
         .add_plugin(NetworkPlugin)
