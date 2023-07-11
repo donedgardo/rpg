@@ -43,14 +43,11 @@ pub fn input(
 ) -> MyGameInput {
     let mut input = MyGameInput::default();
     let gamepad = if let Some(gp) = my_gamepad {
-        // a gamepad is connected, we have the id
         gp.0
     } else {
-        // no gamepad is connected
         return input;
     };
 
-    // The joysticks are represented using a separate axis for X and Y
     let axis_lx = GamepadAxis {
         gamepad,
         axis_type: GamepadAxisType::LeftStickX,
@@ -66,12 +63,10 @@ pub fn input(
             ly: y,
         };
         gamepad_axes.apply_deadzone();
-        // Example: check if the stick is pushed up
         input.axis_ly = gamepad_axes.ly;
         input.axis_lx = gamepad_axes.lx;
     }
 
-    // In a real game, the buttons would be configurable, but here we hardcode them
     let jump_button = GamepadButton {
         gamepad,
         button_type: GamepadButtonType::South,
