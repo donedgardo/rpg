@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy::input::gamepad::{GamepadConnection, GamepadConnectionEvent, GamepadEvent};
+use nalgebra::ComplexField;
 
 const DEADZONE: f32 = 0.2;
 
@@ -14,10 +15,10 @@ pub struct GamepadAxes {
 
 impl GamepadAxes {
     pub fn apply_deadzone(&mut self) {
-        if self.lx.abs() < DEADZONE {
+        if ComplexField::abs(self.lx) < DEADZONE {
             self.lx = 0.0;
         }
-        if self.ly.abs() < DEADZONE {
+        if ComplexField::abs(self.ly) < DEADZONE {
             self.ly = 0.0;
         }
     }

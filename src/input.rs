@@ -40,9 +40,8 @@ fn are_approx_equal(a: f32, b: f32) -> bool {
 pub fn input(
     _: In<PlayerHandle>,
     buttons: Res<Input<GamepadButton>>,
-    axes: Res<Axis<GamepadAxis>>,
+    mut axes: ResMut<Axis<GamepadAxis>>,
     my_gamepad: Option<Res<MyGamepad>>,
-    mut gamepad_axes: ResMut<GamepadAxes>,
 ) -> MyGameInput {
     let mut input = MyGameInput::default();
     let gamepad = if let Some(gp) = my_gamepad {
@@ -64,9 +63,9 @@ pub fn input(
     };
 
     if let (Some(x), Some(y)) = (axes.get(axis_lx), axes.get(axis_ly)) {
-        gamepad_axes.lx = x;
-        gamepad_axes.ly = y;
-        gamepad_axes.apply_deadzone();
+        axes.lx = x;
+        axes.ly = y;
+        axes.apply_deadzone();
         // Example: check if the stick is pushed up
         input.axis_ly = gamepad_axes.ly;
         input.axis_lx = gamepad_axes.lx;
