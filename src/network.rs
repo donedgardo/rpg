@@ -73,15 +73,21 @@ pub fn wait_for_players(
 
     // P2P Session
     // start the GGRS session
-    //let ggrs_session = session_builder
-    //    .start_p2p_session(channel)
-    //    .expect("failed to start session");
-    //commands.insert_resource(bevy_ggrs::Session::P2PSession(ggrs_session));
+    #[cfg(not(feature = "debug"))]
+    {
+        let ggrs_session = session_builder
+            .start_p2p_session(channel)
+            .expect("failed to start session");
+        commands.insert_resource(bevy_ggrs::Session::P2PSession(ggrs_session));
+    }
 
     // TEST
-    let test_session = session_builder.start_synctest_session()
-        .expect("failed to start test session");
-    commands.insert_resource(bevy_ggrs::Session::SyncTestSession(test_session));
+    #[cfg(feature = "debug")]
+    {
+        let test_session = session_builder.start_synctest_session()
+            .expect("failed to start test session");
+        commands.insert_resource(bevy_ggrs::Session::SyncTestSession(test_session));
+    }
     app_state.set(AppState::Online);
 }
 

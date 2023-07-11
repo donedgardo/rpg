@@ -3,6 +3,9 @@ name = "rpg"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+debug = []
+
 [dependencies]
 bevy = { version= "0.10.1" }
 bevy_editor_pls = "0.4.0"
