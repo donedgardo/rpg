@@ -30,8 +30,8 @@ fn move_player_system(
     for (mut vel, mut transform, player) in query.iter_mut() {
         let input = inputs[player.handle].0;
         let mut v = vel.0;
-        v.y += input.axis_lx * MOVEMENT_SPEED;
-        v.x += input.axis_ly * MOVEMENT_SPEED;
+        v.x += input.axis_lx * MOVEMENT_SPEED;
+        v.y += input.axis_ly * MOVEMENT_SPEED;
         let mag = ComplexField::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
         if mag > MAX_SPEED {
             let factor = MAX_SPEED / mag;
