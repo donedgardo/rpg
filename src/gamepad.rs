@@ -4,8 +4,6 @@ use nalgebra::ComplexField;
 
 const DEADZONE: f32 = 0.2;
 
-const DEADZONE: f32 = 0.2;
-
 pub struct GamepadPlugin;
 
 pub struct GamepadAxes {

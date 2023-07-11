@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use bevy_ggrs::ggrs::PlayerHandle;
 use bytemuck::{Pod, Zeroable};
 use nalgebra::ComplexField;
-use crate::gamepad::MyGamepad;
+use crate::gamepad::{GamepadAxes, MyGamepad};
 
 pub const INPUT_JUMP: u8 = 1 << 0;
 pub const INPUT_ATTACK: u8 = 1 << 1;
