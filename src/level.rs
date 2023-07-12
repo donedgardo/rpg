@@ -19,7 +19,51 @@ impl Plugin for LevelPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(setup_scene.in_schedule(OnEnter(AppState::Online)))
             .add_system(spawn_players.in_schedule(OnEnter(AppState::Online)))
-            .add_system(move_player_system.in_schedule(GGRSSchedule));
+            .add_system(move_player_system.in_schedule(GGRSSchedule))
+            .add_system(setup_scene.in_schedule(OnEnter(AppState::LocalPlay)))
+            .add_system(spawn_local_players.in_schedule(OnEnter(AppState::LocalPlay)))
+            .add_system(move_local_player_system.in_schedule(GGRSSchedule));
+    }
+}
+
+fn spawn_local_players(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    mut rip: ResMut<RollbackIdProvider>,
+) {
+    // Spawn a single player for local play
+    commands.spawn((
+        MaterialMesh2dBundle {
+            mesh: meshes
+                .add(shape::Quad::new(Vec2::new(50., 50.)).into())
+                .into(),
+            material: materials.add(ColorMaterial::from(Color::RED)),
+            transform: Transform::from_translation(Vec3::new(-50., 50., 0.)),
+            ..default()
+        },
+        Player { handle: 0 },
+        Velocity::default(),
+        rip.next(),
+    ));
+}
+
+fn move_local_player_system(
+    mut query: Query<(&mut Velocity, &mut Transform, &Player), With<Rollback>>,
+    inputs: Res<Input<GamepadAxis>>,
+) {
+    for (mut vel, mut transform, player) in query.iter_mut() {
+        let input = inputs.get(GamepadAxis::LeftStickX(player.handle));
+        let mut v = vel.0;
+        v.x += input * MOVEMENT_SPEED;
+        let mag = ComplexField::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+        if mag > MAX_SPEED {
+            let factor = MAX_SPEED / mag;
+            v.x *= factor;
+            v.y *= factor;
+            v.z *= factor;
+        }
+        transform.translation += v;
     }
 }
 

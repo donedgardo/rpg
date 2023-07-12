@@ -6,4 +6,5 @@ pub enum AppState {
     Menu,
     WaitingForPlayers,
     Online,
+    LocalPlay,
 }

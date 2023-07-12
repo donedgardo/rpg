@@ -84,6 +84,9 @@ fn button_system(
                     MenuButtons::OnlinePlay => {
                         app_state.set(AppState::WaitingForPlayers);
                     }
+                    MenuButtons::LocalPlay => {
+                        app_state.set(AppState::LocalPlay);
+                    }
                     _ => {}
                 }
             }
