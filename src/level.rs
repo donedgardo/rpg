@@ -1,6 +1,8 @@
 use std::ops::Deref;
+use std::time::{Duration, Instant};
 use bevy::prelude::*;
 use bevy::asset::Assets;
+use bevy::ecs::schedule::{LogLevel, ScheduleBuildSettings, ScheduleLabel};
 use bevy::sprite::{MaterialMesh2dBundle, SpriteBundle};
 use bevy::render::color::Color;
 use crate::app_state::AppState;
@@ -17,15 +19,69 @@ pub struct LevelPlugin;
 const MOVEMENT_SPEED: f32 = 1.;
 const MAX_SPEED: f32 = 5.;
 
+
+#[derive(ScheduleLabel, Debug, Hash, PartialEq, Eq, Clone)]
+pub struct LocalPlaySchedule;
+
+#[derive(Resource)]
+struct LocalPlayStage {
+    update_frequency: usize,
+    last_updated: Instant,
+    accumulator: Duration,
+}
+
+impl LocalPlayStage {
+    pub fn new() -> Self {
+        Self {
+            update_frequency: 60,
+            last_updated: Instant::now(),
+            accumulator: Duration::ZERO,
+        }
+    }
+}
+
 impl Plugin for LevelPlugin {
     fn build(&self, app: &mut App) {
+        // Online
         app.add_system(setup_scene.in_schedule(OnEnter(AppState::Online)))
             .add_system(spawn_players.in_schedule(OnEnter(AppState::Online)))
-            .add_system(move_player_system.in_schedule(GGRSSchedule))
-            .add_system(setup_scene.in_schedule(OnEnter(AppState::LocalPlay)))
+            .add_system(move_player_system.in_schedule(GGRSSchedule));
+
+        //Local
+        let mut schedule = Schedule::default();
+        schedule.set_build_settings(ScheduleBuildSettings {
+            ambiguity_detection: LogLevel::Error,
+            ..default()
+        });
+        let stage = LocalPlayStage::new();
+        app.add_schedule(LocalPlaySchedule, schedule);
+        app.add_system(local_play_system.in_base_set(CoreSet::PreUpdate));
+        app.insert_resource(stage);
+        app.add_system(setup_scene.in_schedule(OnEnter(AppState::LocalPlay)))
             .add_system(spawn_local_players.in_schedule(OnEnter(AppState::LocalPlay)))
-            .add_system(move_local_player_system.in_set(OnUpdate(AppState::LocalPlay)));
+            .add_system(move_local_player_system.in_schedule(LocalPlaySchedule));
     }
+}
+
+fn local_play_system(world: &mut World) {
+    let state = world.get_resource::<State<AppState>>()
+        .expect("failed to extract game state");
+    if state.0 != AppState::LocalPlay { return; };
+    let mut stage = world
+        .remove_resource::<LocalPlayStage>()
+        .expect("failed to extract local play schedule");
+    let delta = Instant::now().duration_since(stage.last_updated);
+    let fps_delta = 1. / stage.update_frequency as f64;
+    stage.accumulator = stage.accumulator.saturating_add(delta);
+    stage.last_updated = Instant::now();
+    while stage.accumulator.as_secs_f64() > fps_delta {
+        // decrease accumulator
+        stage.accumulator = stage
+            .accumulator
+            .saturating_sub(Duration::from_secs_f64(fps_delta));
+        world.run_schedule(LocalPlaySchedule);
+    }
+    world.insert_resource(stage);
 }
 
 fn spawn_local_players(
@@ -57,7 +113,7 @@ fn move_local_player_system(
     let gamepad = if let Some(gp) = my_gamepad {
         gp.0
     } else {
-        return ;
+        return;
     };
     let axis_lx = GamepadAxis {
         gamepad,
@@ -71,8 +127,7 @@ fn move_local_player_system(
             };
             gamepad_axes.apply_deadzone();
             let mut v = vel.0;
-            // TODO make sure local and network run same
-            v.x += gamepad_axes.lx * MOVEMENT_SPEED * 100.;
+            v.x += gamepad_axes.lx * MOVEMENT_SPEED;
             let mag = ComplexField::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
             if mag > MAX_SPEED {
                 let factor = MAX_SPEED / mag;
@@ -80,7 +135,7 @@ fn move_local_player_system(
                 v.y *= factor;
                 v.z *= factor;
             }
-            transform.translation += v * time.delta_seconds();
+            transform.translation += v;
         }
     }
 }
