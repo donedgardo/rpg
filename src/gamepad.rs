@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy::input::gamepad::{GamepadConnection, GamepadConnectionEvent, GamepadEvent};
+use bevy::input::gamepad::{GamepadConnection, GamepadConnectionEvent};
 use nalgebra::ComplexField;
 
 const DEADZONE: f32 = 0.2;

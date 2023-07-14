@@ -1,4 +1,3 @@
-use bevy::input::gamepad::GamepadEvent;
 use bevy::prelude::*;
 use bevy_ggrs::ggrs::PlayerHandle;
 use bytemuck::{Pod, Zeroable};

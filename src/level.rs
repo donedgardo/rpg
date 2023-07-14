@@ -1,24 +1,16 @@
-use std::ops::Deref;
 use std::time::{Duration, Instant};
 use bevy::prelude::*;
 use bevy::asset::Assets;
 use bevy::ecs::schedule::{LogLevel, ScheduleBuildSettings, ScheduleLabel};
-use bevy::sprite::{MaterialMesh2dBundle, SpriteBundle};
+use bevy::sprite::{MaterialMesh2dBundle};
 use bevy::render::color::Color;
 use crate::app_state::AppState;
 use crate::player::{Player, Velocity};
-use bevy_ggrs::ggrs::{PlayerHandle};
-use bevy_ggrs::{RollbackIdProvider, PlayerInputs, Rollback, Session, GGRSSchedule};
-use nalgebra::ComplexField;
-use crate::gamepad::{GamepadAxes, MyGamepad};
-use crate::input::{INPUT_MOVE_DOWN, INPUT_MOVE_UP};
+use bevy_ggrs::{RollbackIdProvider, Session, GGRSSchedule};
+use crate::player_movement::{move_local_player_system, move_online_player_system};
 use crate::network::GgrsConfig;
 
 pub struct LevelPlugin;
-
-const MOVEMENT_SPEED: f32 = 1.;
-const MAX_SPEED: f32 = 5.;
-
 
 #[derive(ScheduleLabel, Debug, Hash, PartialEq, Eq, Clone)]
 pub struct LocalPlaySchedule;
@@ -104,7 +96,6 @@ fn spawn_local_players(
     ));
 }
 
-use crate::player_movement::{move_local_player_system, move_online_player_system};
 
 fn spawn_players(
     mut commands: Commands,

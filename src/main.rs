@@ -1,13 +1,6 @@
 use bevy::prelude::*;
-use bevy::app::AppExit;
-use bevy::log::Level;
-use bevy_ggrs::ggrs::{Config, SessionBuilder};
-use bevy_ggrs::GGRSPlugin;
-use bevy_matchbox::prelude::*;
 use app_state::AppState;
-use input::input;
 use camera::CameraPlugin;
-use network::GgrsConfig;
 use network::NetworkPlugin;
 use menu::MenuPlugin;
 use bevy_rapier2d::prelude::*;
@@ -24,6 +17,7 @@ mod app_state;
 mod cleanup_ui;
 mod level;
 mod gamepad;
+mod player_movement;
 
 fn main() {
     let mut app = App::new();
