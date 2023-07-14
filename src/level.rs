@@ -45,7 +45,7 @@ impl Plugin for LevelPlugin {
         // Online
         app.add_system(setup_scene.in_schedule(OnEnter(AppState::Online)))
             .add_system(spawn_players.in_schedule(OnEnter(AppState::Online)))
-            .add_system(move_player_system.in_schedule(GGRSSchedule));
+            .add_system(move_online_player_system.in_schedule(GGRSSchedule));
 
         //Local
         let mut schedule = Schedule::default();
@@ -147,7 +147,7 @@ fn move_local_player_system(
     }
 }
 
-fn move_player_system(
+fn move_online_player_system(
     mut query: Query<(&mut Velocity, &mut Transform, &Player), With<Rollback>>,
     inputs: Res<PlayerInputs<GgrsConfig>>,
 ) {
