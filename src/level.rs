@@ -47,7 +47,7 @@ impl Plugin for LevelPlugin {
         });
         let stage = LocalPlayStage::new();
         app.add_schedule(LocalPlaySchedule, schedule);
-        app.add_system(local_play_system.in_base_set(CoreSet::PreUpdate));
+        app.add_system(local_play_schedule_system.in_base_set(CoreSet::PreUpdate));
         app.insert_resource(stage);
         app.add_system(setup_scene.in_schedule(OnEnter(AppState::LocalPlay)))
             .add_system(spawn_local_players.in_schedule(OnEnter(AppState::LocalPlay)))
@@ -55,7 +55,7 @@ impl Plugin for LevelPlugin {
     }
 }
 
-fn local_play_system(world: &mut World) {
+fn local_play_schedule_system(world: &mut World) {
     let state = world.get_resource::<State<AppState>>()
         .expect("failed to extract game state");
     if state.0 != AppState::LocalPlay { return; };
