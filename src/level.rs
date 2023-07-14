@@ -1,3 +1,4 @@
+use std::collections::{HashMap, VecDeque};
 use std::time::{Duration, Instant};
 use bevy::prelude::*;
 use bevy::asset::Assets;
@@ -6,9 +7,17 @@ use bevy::sprite::{MaterialMesh2dBundle};
 use bevy::render::color::Color;
 use crate::app_state::AppState;
 use crate::player::{Player, Velocity};
+use crate::input::MyGameInput;
 use bevy_ggrs::{RollbackIdProvider, Session, GGRSSchedule};
 use crate::player_movement::{move_local_player_system, move_online_player_system};
 use crate::network::GgrsConfig;
+
+const MAX_FRAMES: usize = 15;
+
+#[derive(Default)]
+struct InputSnapshots {
+    snapshots: HashMap<u32, VecDeque<MyGameInput>>,
+}
 
 pub struct LevelPlugin;
 
@@ -51,7 +60,9 @@ impl Plugin for LevelPlugin {
         app.insert_resource(stage);
         app.add_system(setup_scene.in_schedule(OnEnter(AppState::LocalPlay)))
             .add_system(spawn_local_players.in_schedule(OnEnter(AppState::LocalPlay)))
-            .add_system(move_local_player_system.in_schedule(LocalPlaySchedule));
+            .add_system(move_local_player_system.in_schedule(LocalPlaySchedule))
+            .add_system(input_snapshot_system.in_schedule(LocalPlaySchedule));
+        app.insert_resource(InputSnapshots::default());
     }
 }
 
@@ -142,4 +153,19 @@ fn setup_scene(
         transform: Transform::from_translation(Vec3::new(0., -100., 0.)),
         ..default()
     });
+}
+fn input_snapshot_system(
+    mut input_snapshots: ResMut<InputSnapshots>,
+    query: Query<(&Player, &MyGameInput)>,
+) {
+    for (player, input) in query.iter() {
+        let player_snapshots = input_snapshots
+            .snapshots
+            .entry(player.handle)
+            .or_insert_with(VecDeque::new);
+        if player_snapshots.len() >= MAX_FRAMES {
+            player_snapshots.pop_front();
+        }
+        player_snapshots.push_back(*input);
+    }
 }
