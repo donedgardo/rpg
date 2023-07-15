@@ -91,7 +91,7 @@ fn local_play_schedule_system(world: &mut World) {
 }
 
 fn spawn_player<'w, 's, 'a>(
-    mut commands: &Commands,
+    mut commands: &'w mut Commands<'w, 's>,
     mut meshes: &ResMut<Assets<Mesh>>,
     mut materials: &ResMut<Assets<ColorMaterial>>,
     handle: usize,
