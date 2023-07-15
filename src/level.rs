@@ -1,26 +1,25 @@
-use std::collections::{HashMap};
+use std::collections::HashMap;
 use std::collections::vec_deque::VecDeque;
 use std::time::{Duration, Instant};
 use bevy::prelude::*;
 use bevy::asset::Assets;
 use bevy::ecs::schedule::{LogLevel, ScheduleBuildSettings, ScheduleLabel};
 use bevy::ecs::system::EntityCommands;
-use bevy::sprite::{MaterialMesh2dBundle};
+use bevy::sprite::MaterialMesh2dBundle;
 use bevy::render::color::Color;
 use crate::app_state::AppState;
 use crate::player::{Player, Velocity};
-use crate::input::MyGameInput;
-use bevy_ggrs::{RollbackIdProvider, Session, GGRSSchedule};
+use crate::input::{get_my_game_input, InputSnapshots, MyGameInput};
+use bevy_ggrs::{GGRSSchedule, Rollback, RollbackIdProvider, Session};
 use bevy_ggrs::ggrs::PlayerHandle;
+use bevy_rapier2d::control::KinematicCharacterController;
+use bevy_rapier2d::geometry::Collider;
+use bevy_rapier2d::prelude::RigidBody;
+use crate::gamepad::MyGamepad;
+use crate::input;
 use crate::player_movement::{move_local_player_system, move_online_player_system};
 use crate::network::GgrsConfig;
 
-const MAX_FRAMES: usize = 15;
-
-#[derive(Resource, Default)]
-struct InputSnapshots {
-    snapshots: HashMap<PlayerHandle, VecDeque<MyGameInput>>,
-}
 
 pub struct LevelPlugin;
 
@@ -49,7 +48,7 @@ impl Plugin for LevelPlugin {
         // Online
         app.add_system(setup_scene.in_schedule(OnEnter(AppState::Online)))
             .add_system(spawn_network_players.in_schedule(OnEnter(AppState::Online)))
-            .add_system(move_online_player_system.in_schedule(GGRSSchedule));
+            .add_systems((input::input_snapshot_system, move_online_player_system).chain().in_schedule(GGRSSchedule));
 
         //Local
         let mut schedule = Schedule::default();
@@ -63,8 +62,7 @@ impl Plugin for LevelPlugin {
         app.insert_resource(stage);
         app.add_system(setup_scene.in_schedule(OnEnter(AppState::LocalPlay)))
             .add_system(spawn_local_players.in_schedule(OnEnter(AppState::LocalPlay)))
-            .add_system(move_local_player_system.in_schedule(LocalPlaySchedule))
-            .add_system(input_snapshot_system.in_schedule(LocalPlaySchedule));
+            .add_systems((input::input_snapshot_system, move_local_player_system).chain().in_schedule(LocalPlaySchedule));
         app.insert_resource(InputSnapshots::default());
     }
 }
@@ -90,34 +88,15 @@ fn local_play_schedule_system(world: &mut World) {
     world.insert_resource(stage);
 }
 
-fn spawn_player<'w, 's, 'a>(
-    mut commands: &'w mut Commands<'w, 's>,
-    mut meshes: &mut ResMut<Assets<Mesh>>,
-    mut materials: &mut ResMut<Assets<ColorMaterial>>,
-    handle: usize,
-    position: f32,
-) -> EntityCommands<'w, 's, 'a> {
-    commands.spawn((
-        MaterialMesh2dBundle {
-            mesh: meshes
-                .add(shape::Quad::new(Vec2::new(50., 50.)).into())
-                .into(),
-            material: materials.add(ColorMaterial::from(Color::RED)),
-            transform: Transform::from_translation(Vec3::new(position, 50., 0.)),
-            ..default()
-        },
-        Player { handle },
-        Velocity::default(),
-    ))
-}
-
 fn spawn_local_players(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     // Spawn a single player for local play
-    spawn_player(&mut commands, &mut meshes, &mut materials, 0, -50.);
+    commands.spawn(
+        player_bundle_common(&mut meshes, &mut materials, 0, Vec3::new(-50., 50., 0.))
+    );
 }
 
 fn spawn_network_players(
@@ -133,11 +112,44 @@ fn spawn_network_players(
         Session::SpectatorSession(s) => s.num_players(),
     };
     for handle in 0..num_players {
-        let position = if handle == 0 { -50. } else { 50. };
-        spawn_player(commands, &mut meshes, &mut materials, handle, position)
+        let position = if handle == 0 { Vec3::new(-50., 50., 0.) } else { Vec3::new(50., 50., 0.) };
+        commands.spawn(player_bundle_common(&mut meshes, &mut materials, handle, position))
             .insert(rip.next());
     }
 }
+
+#[derive(Bundle)]
+struct PlayerBundle {
+    mesh_bundle: MaterialMesh2dBundle<ColorMaterial>,
+    player: Player,
+    rigid_body: RigidBody,
+    collider: Collider,
+    controller: KinematicCharacterController,
+}
+
+
+fn player_bundle_common(
+    mut meshes: &mut ResMut<Assets<Mesh>>,
+    mut materials: &mut ResMut<Assets<ColorMaterial>>,
+    handle: usize,
+    position: Vec3,
+) -> PlayerBundle {
+    PlayerBundle {
+        mesh_bundle: MaterialMesh2dBundle {
+            mesh: meshes
+                .add(shape::Quad::new(Vec2::new(50., 50.)).into())
+                .into(),
+            material: materials.add(ColorMaterial::from(Color::RED)),
+            transform: Transform::from_translation(position),
+            ..default()
+        },
+        player: Player { handle },
+        rigid_body: RigidBody::KinematicPositionBased,
+        collider: Collider::capsule(Vec2::ZERO, Vec2::new(0., 50.), 25.),
+        controller: KinematicCharacterController::default(),
+    }
+}
+
 fn setup_scene(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -152,19 +164,4 @@ fn setup_scene(
         transform: Transform::from_translation(Vec3::new(0., -100., 0.)),
         ..default()
     });
-}
-fn input_snapshot_system(
-    mut input_snapshots: ResMut<InputSnapshots>,
-    query: Query<(&Player, &MyGameInput)>,
-) {
-    for (player, input) in query.iter() {
-        let player_snapshots = input_snapshots
-            .snapshots
-            .entry(player.handle)
-            .or_insert_with(VecDeque::new);
-        if player_snapshots.len() >= MAX_FRAMES {
-            player_snapshots.pop_front();
-        }
-        player_snapshots.push_back(*input);
-    }
 }

@@ -1,8 +1,14 @@
+use std::collections::HashMap;
 use bevy::prelude::*;
 use bevy_ggrs::ggrs::PlayerHandle;
 use bytemuck::{Pod, Zeroable};
 use nalgebra::ComplexField;
+use std::collections::vec_deque::VecDeque;
 use crate::gamepad::{GamepadAxes, MyGamepad};
+
+use crate::player::Player;
+
+pub const MAX_FRAMES: usize = 15;
 
 pub const INPUT_JUMP: u8 = 1 << 0;
 pub const INPUT_ATTACK: u8 = 1 << 1;
@@ -14,11 +20,16 @@ pub const INPUT_MOVE_LEFT: u8 = 1 << 6;
 pub const INPUT_MOVE_RIGHT: u8 = 1 << 7;
 
 #[repr(C, packed)]
-#[derive(Component, Copy, Clone, Pod, Zeroable, Default)]
+#[derive(Copy, Clone, Pod, Zeroable, Default)]
 pub struct MyGameInput {
     pub axis_lx: f32,
     pub axis_ly: f32,
     pub actions: u8,
+}
+
+#[derive(Resource, Default)]
+pub struct InputSnapshots {
+    pub snapshots: HashMap<PlayerHandle, VecDeque<MyGameInput>>,
 }
 
 impl PartialEq for MyGameInput {
@@ -34,12 +45,16 @@ fn are_approx_equal(a: f32, b: f32) -> bool {
     ComplexField::abs(a - b) < epsilon
 }
 
-pub fn input(
+pub fn ggrs_input_system(
     _: In<PlayerHandle>,
     buttons: Res<Input<GamepadButton>>,
     axes: Res<Axis<GamepadAxis>>,
     my_gamepad: Option<Res<MyGamepad>>,
 ) -> MyGameInput {
+    get_my_game_input(&buttons, &axes, &my_gamepad)
+}
+
+pub fn get_my_game_input(buttons: &Res<Input<GamepadButton>>, axes: &Res<Axis<GamepadAxis>>, my_gamepad: &Option<Res<MyGamepad>>) -> MyGameInput {
     let mut input = MyGameInput::default();
     let gamepad = if let Some(gp) = my_gamepad {
         gp.0
@@ -89,4 +104,25 @@ pub fn input(
         input.actions |= INPUT_BLOCK;
     }
     input
+}
+
+pub fn input_snapshot_system(
+    mut input_snapshots: ResMut<InputSnapshots>,
+    buttons: Res<Input<GamepadButton>>,
+    axes: Res<Axis<GamepadAxis>>,
+    my_gamepad: Option<Res<MyGamepad>>,
+    query: Query<(&Player)>,
+) {
+    // Todo get multiple controller inputs bases on player
+    for (player) in query.iter() {
+        let first_player_input = get_my_game_input(&buttons, &axes, &my_gamepad);
+        let player_snapshots = input_snapshots
+            .snapshots
+            .entry(player.handle)
+            .or_insert_with(VecDeque::new);
+        if player_snapshots.len() >= MAX_FRAMES {
+            player_snapshots.pop_front();
+        }
+        player_snapshots.push_back(first_player_input);
+    }
 }
