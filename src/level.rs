@@ -4,6 +4,7 @@ use std::time::{Duration, Instant};
 use bevy::prelude::*;
 use bevy::asset::Assets;
 use bevy::ecs::schedule::{LogLevel, ScheduleBuildSettings, ScheduleLabel};
+use bevy::ecs::system::EntityCommands;
 use bevy::sprite::{MaterialMesh2dBundle};
 use bevy::render::color::Color;
 use crate::app_state::AppState;
@@ -47,7 +48,7 @@ impl Plugin for LevelPlugin {
     fn build(&self, app: &mut App) {
         // Online
         app.add_system(setup_scene.in_schedule(OnEnter(AppState::Online)))
-            .add_system(spawn_players.in_schedule(OnEnter(AppState::Online)))
+            .add_system(spawn_network_players.in_schedule(OnEnter(AppState::Online)))
             .add_system(move_online_player_system.in_schedule(GGRSSchedule));
 
         //Local
@@ -89,13 +90,13 @@ fn local_play_schedule_system(world: &mut World) {
     world.insert_resource(stage);
 }
 
-fn spawn_player(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
+fn spawn_player<'w, 's, 'a>(
+    mut commands: &Commands,
+    mut meshes: &ResMut<Assets<Mesh>>,
+    mut materials: &ResMut<Assets<ColorMaterial>>,
     handle: usize,
     position: f32,
-) {
+) -> EntityCommands<'w, 's, 'a> {
     commands.spawn((
         MaterialMesh2dBundle {
             mesh: meshes
@@ -107,7 +108,7 @@ fn spawn_player(
         },
         Player { handle },
         Velocity::default(),
-    ));
+    ))
 }
 
 fn spawn_local_players(
@@ -116,10 +117,10 @@ fn spawn_local_players(
     materials: ResMut<Assets<ColorMaterial>>,
 ) {
     // Spawn a single player for local play
-    spawn_player(commands, meshes, materials, 0, -50.);
+    spawn_player(&commands, &meshes, &materials, 0, -50.);
 }
 
-fn spawn_players(
+fn spawn_network_players(
     commands: Commands,
     meshes: ResMut<Assets<Mesh>>,
     materials: ResMut<Assets<ColorMaterial>>,
@@ -133,8 +134,8 @@ fn spawn_players(
     };
     for handle in 0..num_players {
         let position = if handle == 0 { -50. } else { 50. };
-        spawn_player(commands, meshes, materials, handle, position);
-        commands.with(rip.next());
+        spawn_player(&commands, &meshes, &materials, handle, position)
+            .insert(rip.next());
     }
 }
 fn setup_scene(
