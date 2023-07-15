@@ -1,4 +1,5 @@
-use std::collections::{HashMap, VecDeque};
+use std::collections::{HashMap};
+use std::collections::vec_deque::VecDeque;
 use std::time::{Duration, Instant};
 use bevy::prelude::*;
 use bevy::asset::Assets;
@@ -9,14 +10,15 @@ use crate::app_state::AppState;
 use crate::player::{Player, Velocity};
 use crate::input::MyGameInput;
 use bevy_ggrs::{RollbackIdProvider, Session, GGRSSchedule};
+use bevy_ggrs::ggrs::PlayerHandle;
 use crate::player_movement::{move_local_player_system, move_online_player_system};
 use crate::network::GgrsConfig;
 
 const MAX_FRAMES: usize = 15;
 
-#[derive(Default)]
+#[derive(Resource, Default)]
 struct InputSnapshots {
-    snapshots: HashMap<u32, VecDeque<MyGameInput>>,
+    snapshots: HashMap<PlayerHandle, VecDeque<MyGameInput>>,
 }
 
 pub struct LevelPlugin;

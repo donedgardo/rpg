@@ -14,7 +14,7 @@ pub const INPUT_MOVE_LEFT: u8 = 1 << 6;
 pub const INPUT_MOVE_RIGHT: u8 = 1 << 7;
 
 #[repr(C, packed)]
-#[derive(Copy, Clone, Pod, Zeroable, Default)]
+#[derive(Component, Copy, Clone, Pod, Zeroable, Default)]
 pub struct MyGameInput {
     pub axis_lx: f32,
     pub axis_ly: f32,
