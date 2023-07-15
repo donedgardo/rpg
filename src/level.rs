@@ -92,8 +92,8 @@ fn local_play_schedule_system(world: &mut World) {
 
 fn spawn_player<'w, 's, 'a>(
     mut commands: &'w mut Commands<'w, 's>,
-    mut meshes: &ResMut<Assets<Mesh>>,
-    mut materials: &ResMut<Assets<ColorMaterial>>,
+    mut meshes: &mut ResMut<Assets<Mesh>>,
+    mut materials: &mut ResMut<Assets<ColorMaterial>>,
     handle: usize,
     position: f32,
 ) -> EntityCommands<'w, 's, 'a> {
@@ -112,18 +112,18 @@ fn spawn_player<'w, 's, 'a>(
 }
 
 fn spawn_local_players(
-    commands: Commands,
-    meshes: ResMut<Assets<Mesh>>,
-    materials: ResMut<Assets<ColorMaterial>>,
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     // Spawn a single player for local play
-    spawn_player(&commands, &meshes, &materials, 0, -50.);
+    spawn_player(&mut commands, &mut meshes, &mut materials, 0, -50.);
 }
 
 fn spawn_network_players(
-    commands: Commands,
-    meshes: ResMut<Assets<Mesh>>,
-    materials: ResMut<Assets<ColorMaterial>>,
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
     mut rip: ResMut<RollbackIdProvider>,
     session: Res<Session<GgrsConfig>>,
 ) {
@@ -134,7 +134,7 @@ fn spawn_network_players(
     };
     for handle in 0..num_players {
         let position = if handle == 0 { -50. } else { 50. };
-        spawn_player(&commands, &meshes, &materials, handle, position)
+        spawn_player(&mut commands, &mut meshes, &mut materials, handle, position)
             .insert(rip.next());
     }
 }
