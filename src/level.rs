@@ -89,31 +89,40 @@ fn local_play_schedule_system(world: &mut World) {
     world.insert_resource(stage);
 }
 
-fn spawn_local_players(
+fn spawn_player(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
+    handle: usize,
+    position: f32,
 ) {
-    // Spawn a single player for local play
     commands.spawn((
         MaterialMesh2dBundle {
             mesh: meshes
                 .add(shape::Quad::new(Vec2::new(50., 50.)).into())
                 .into(),
             material: materials.add(ColorMaterial::from(Color::RED)),
-            transform: Transform::from_translation(Vec3::new(-50., 50., 0.)),
+            transform: Transform::from_translation(Vec3::new(position, 50., 0.)),
             ..default()
         },
-        Player { handle: 0 },
+        Player { handle },
         Velocity::default(),
     ));
 }
 
+fn spawn_local_players(
+    commands: Commands,
+    meshes: ResMut<Assets<Mesh>>,
+    materials: ResMut<Assets<ColorMaterial>>,
+) {
+    // Spawn a single player for local play
+    spawn_player(commands, meshes, materials, 0, -50.);
+}
 
 fn spawn_players(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
+    commands: Commands,
+    meshes: ResMut<Assets<Mesh>>,
+    materials: ResMut<Assets<ColorMaterial>>,
     mut rip: ResMut<RollbackIdProvider>,
     session: Res<Session<GgrsConfig>>,
 ) {
@@ -123,24 +132,11 @@ fn spawn_players(
         Session::SpectatorSession(s) => s.num_players(),
     };
     for handle in 0..num_players {
-        commands.spawn((
-            MaterialMesh2dBundle {
-                mesh: meshes
-                    .add(shape::Quad::new(Vec2::new(50., 50.)).into())
-                    .into(),
-                material: materials.add(ColorMaterial::from(Color::RED)),
-                transform: Transform::from_translation(
-                    Vec3::new(if handle == 0 { -50. } else { 50. }, 50., 0.)
-                ),
-                ..default()
-            },
-            Player { handle },
-            Velocity::default(),
-            rip.next(),
-        ));
+        let position = if handle == 0 { -50. } else { 50. };
+        spawn_player(commands, meshes, materials, handle, position);
+        commands.with(rip.next());
     }
 }
-
 fn setup_scene(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
