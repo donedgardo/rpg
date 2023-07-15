@@ -134,7 +134,7 @@ fn spawn_network_players(
     };
     for handle in 0..num_players {
         let position = if handle == 0 { -50. } else { 50. };
-        spawn_player(&mut commands, &mut meshes, &mut materials, handle, position)
+        spawn_player(commands, &mut meshes, &mut materials, handle, position)
             .insert(rip.next());
     }
 }
