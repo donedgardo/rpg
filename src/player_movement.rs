@@ -5,7 +5,7 @@ use bevy_rapier2d::control::KinematicCharacterController;
 use nalgebra::ComplexField;
 use crate::player::{Player, Velocity};
 use crate::gamepad::{GamepadAxes, MyGamepad};
-use crate::input::{InputSnapshots, MyGameInput};
+use crate::input::{InputSnapshots, GGRSGameInput};
 use crate::network::GgrsConfig;
 
 const MOVEMENT_SPEED: f32 = 1.;

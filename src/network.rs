@@ -3,7 +3,7 @@ use bevy_ggrs::ggrs::{Config, SessionBuilder};
 use bevy_ggrs::GGRSPlugin;
 use bevy_matchbox::prelude::*;
 use crate::app_state::AppState;
-use crate::input::{ggrs_input_system, MyGameInput};
+use crate::input::{ggrs_input_system, InputSnapshots, MAX_FRAMES, GGRSGameInput};
 use crate::player::Velocity;
 
 const FPS: usize = 60;
@@ -24,7 +24,7 @@ impl Plugin for NetworkPlugin {
 pub struct GgrsConfig;
 
 impl Config for GgrsConfig {
-    type Input = MyGameInput;
+    type Input = GGRSGameInput;
     type State = u8;
     // Matchbox' WebRtcSocket addresses are called `PeerId`s
     type Address = PeerId;
@@ -55,7 +55,10 @@ pub fn wait_for_players(
     let players = socket.players();
 
     if players.len() < player_config.num_players {
-        return; // wait for more players
+        #[cfg(not(feature="debug"))]
+        {
+            return; // wait for more players
+        }
     }
     info!("All peers have joined, going in-game");
     let mut session_builder = SessionBuilder::<GgrsConfig>::new()
@@ -82,7 +85,8 @@ pub fn wait_for_players(
     // TEST
     #[cfg(feature = "debug")]
     {
-        let test_session = session_builder.start_synctest_session()
+        let test_session = session_builder.with_check_distance(2)
+            .start_synctest_session()
             .expect("failed to start test session");
         commands.insert_resource(bevy_ggrs::Session::SyncTestSession(test_session));
     }
@@ -98,6 +102,7 @@ pub fn integrate_ggrs_plugin(app: &mut App) {
         .with_input_system(ggrs_input_system)
         .register_rollback_component::<Transform>()
         .register_rollback_component::<Velocity>()
+        .register_rollback_resource::<InputSnapshots>()
         .build(app);
 }
 

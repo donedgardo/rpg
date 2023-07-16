@@ -9,7 +9,7 @@ use bevy::sprite::MaterialMesh2dBundle;
 use bevy::render::color::Color;
 use crate::app_state::AppState;
 use crate::player::{Player, Velocity};
-use crate::input::{get_my_game_input, InputSnapshots, MyGameInput};
+use crate::input::{get_my_game_input, InputSnapshots, GGRSGameInput};
 use bevy_ggrs::{GGRSSchedule, Rollback, RollbackIdProvider, Session};
 use bevy_ggrs::ggrs::PlayerHandle;
 use bevy_rapier2d::control::KinematicCharacterController;
@@ -156,12 +156,14 @@ fn setup_scene(
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     // Quad
-    commands.spawn(MaterialMesh2dBundle {
-        mesh: meshes
-            .add(shape::Quad::new(Vec2::new(600., 200.)).into())
-            .into(),
-        material: materials.add(ColorMaterial::from(Color::GREEN)),
-        transform: Transform::from_translation(Vec3::new(0., -100., 0.)),
-        ..default()
-    });
+    commands.spawn((
+        MaterialMesh2dBundle {
+            mesh: meshes
+                .add(shape::Quad::new(Vec2::new(600., 200.)).into())
+                .into(),
+            material: materials.add(ColorMaterial::from(Color::GREEN)),
+            transform: Transform::from_translation(Vec3::new(0., -100., 0.)),
+            ..default()
+        })
+    );
 }
