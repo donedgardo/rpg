@@ -1,0 +1,153 @@
+
+# 2023-07-14 01:44:19.541330
++/add src/main.rs
+
+# 2023-07-14 01:44:26.279761
++/add src/level.rs
+
+# 2023-07-14 01:44:31.978004
++/add src/input.rs
+
+# 2023-07-14 01:52:16.961708
++Create a system inside level.rs, this system will keep track of a new resource called InputSnapshots which will keep track of each players input through each frame. Make it first in first out and limit it to 15 frames as the memory constrait. This system will run in the schedule LocalPlaySchedule.
+
+# 2023-07-14 23:16:10.207730
++/help
+
+# 2023-07-14 23:16:15.959225
++/ls
+
+# 2023-07-14 23:16:50.975610
++/tok
+
+# 2023-07-14 23:27:19.336374
++Lets add a jump feature using in the input module. I want the feature to work for both local and network games. Use https://rapier.rs/docs/user_guides/bevy_plugin/character_controller/ and change the inputs of movement to instead of chaging velocity use the new rapier controller.
+
+# 2023-07-14 23:39:11.379727
++/run git diff
+
+# 2023-07-14 23:39:28.659712
++/clear
+
+# 2023-07-14 23:39:36.244036
++/run git diff
+
+# 2023-07-14 23:39:50.260298
++/clear
+
+# 2023-07-14 23:39:56.412395
++Lets add a jump feature using in the input module. I want the feature to work for both local and network games. Use https://rapier.rs/docs/user_guides/bevy_plugin/character_controller/ and change the inputs of movement to instead of chaging velocity use the new rapier controller.
+
+# 2023-07-14 23:42:05.615559
++/undo
+
+# 2023-07-15 01:15:28.940264
++/drop
+
+# 2023-07-15 01:15:32.588985
++/ls
+
+# 2023-07-15 01:15:34.469145
++/clear
+
+# 2023-07-15 01:15:35.485695
++/ls
+
+# 2023-07-15 01:15:39.108092
++/help
+
+# 2023-07-15 01:15:55.733414
++/add src/main.rs
+
+# 2023-07-15 01:16:04.245091
++/clear
+
+# 2023-07-15 01:16:05.486109
++/drop
+
+# 2023-07-15 01:16:06.324665
++/ls
+
+# 2023-07-15 01:16:17.060478
++/add src/main.rs 
+
+# 2023-07-15 01:16:42.335944
++/add src/menu.rs
+
+# 2023-07-15 01:16:48.074454
++/add src/main.rs
+
+# 2023-07-15 01:16:53.537684
++/add src/level.rs
+
+# 2023-07-15 01:17:46.576386
++In the level.rs function we have duplication of the character spawning, I like to refactor this to avoid duplication.
+
+# 2023-07-15 02:59:13.641405
++Help me debug this issue error[E0621]: explicit lifetime required in the type of `commands`
++   --> src\level.rs:100:5
++    |
++94  |       mut commands: &Commands,
++    |                     --------- help: add explicit lifetime `'w` to the type of `commands`: `&bevy::prelude::Commands<'w, '_>`
++...
++100 | /     commands.spawn((
++101 | |         MaterialMesh2dBundle {
++102 | |             mesh: meshes
++103 | |                 .add(shape::Quad::new(Vec2::new(50., 50.)).into())
++...   |
++110 | |         Velocity::default(),
++111 | |     ))
++    | |______^ lifetime `'w` required
++
+
+# 2023-07-15 03:26:06.410947
++Having this error when tryuing to build error: lifetime may not live long enough
++   --> src\level.rs:120:5
++    |
++115 |     mut commands: Commands,
++    |     ------------
++    |     |
++    |     has type `bevy::prelude::Commands<'_, '1>`
++    |     has type `bevy::prelude::Commands<'2, '_>`
++...
++120 |     spawn_player(&mut commands, &mut meshes, &mut materials, 0, -50.);
++    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ argument requires that `'1` must outlive `'2`
++    |
++    = note: requirement occurs because of a mutable reference to `bevy::prelude::Commands<'_, '_>`
++    = note: mutable references are invariant over their type parameter
++    = help: see <https://doc.rust-lang.org/nomicon/subtyping.html> for more information about variance
++
++
+
+# 2023-07-15 03:27:40.452993
++/clear
+
+# 2023-07-15 03:28:52.623219
++Having this compile issue: 
+
+# 2023-07-15 03:29:25.866227
++Having this compile error: ```error[E0597]: `commands` does not live long enough
++   --> src\level.rs:137:22
++    |
++124 |     mut commands: Commands,
++    |     ------------
++    |     |
++    |     binding `commands` declared here
++    |     has type `bevy::prelude::Commands<'2, '_>`
++...
++137 |         spawn_player(&mut commands, &mut meshes, &mut materials, handle, position)
++    |         -------------^^^^^^^^^^^^^------------------------------------------------
++    |         |            |
++    |         |            borrowed value does not live long enough
++    |         argument requires that `commands` is borrowed for `'2`
++...
++140 | }
++    |  - `commands` dropped here while still borrowed
++
++```
+
+# 2023-07-15 05:16:26.057672
++/exit
+
+# 2023-07-16 05:38:14.264612
++/clear
